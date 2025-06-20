@@ -5,6 +5,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simulated Max Diff Stats</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      body {
+        background: url("https://www.transparenttextures.com/patterns/brick-wall.png");
+        color: #000080;
+        font-family: "Courier New", Courier, monospace;
+        margin: 0;
+        padding: 0;
+        animation: bgmove 10s linear infinite;
+      }
+      @keyframes bgmove {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: 200px 200px;
+        }
+      }
+      h1 {
+        background: #000080;
+        color: #fff;
+        padding: 10px;
+        margin: 0 0 20px 0;
+        font-size: 2em;
+        border-bottom: 4px double #fff;
+        text-align: center;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 0 #ff0, 0 0 10px #0ff;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+      label {
+        font-weight: bold;
+        margin-right: 8px;
+        background: #ff0;
+        color: #f00;
+        padding: 2px 4px;
+        border: 1px dashed #f0f;
+      }
+      input[type="number"] {
+        background: #fff;
+        border: 2px inset #808080;
+        color: #000080;
+        font-family: inherit;
+        font-size: 1em;
+        margin-right: 12px;
+        padding: 2px 4px;
+        width: 60px;
+      }
+      button {
+        background: #c0c0c0;
+        border: 2px outset #fff;
+        color: #000080;
+        font-family: inherit;
+        font-size: 1em;
+        padding: 2px 12px;
+        margin-left: 8px;
+        cursor: pointer;
+        animation: rainbow 2s linear infinite;
+      }
+      @keyframes rainbow {
+        0% {
+          color: red;
+        }
+        20% {
+          color: orange;
+        }
+        40% {
+          color: yellow;
+        }
+        60% {
+          color: green;
+        }
+        80% {
+          color: blue;
+        }
+        100% {
+          color: violet;
+        }
+      }
+      .gif-bar {
+        width: 100vw;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        padding: 4px 0;
+        border-bottom: 4px double #ff0;
+      }
+      .gif-bar img {
+        height: 48px;
+        image-rendering: pixelated;
+      }
+      .marquee {
+        width: 100vw;
+        background: #ff0;
+        color: #f0f;
+        font-size: 1.5em;
+        font-family: Impact, fantasy, "Courier New", Courier, monospace;
+        border-top: 4px double #f0f;
+        border-bottom: 4px double #f0f;
+        padding: 2px 0;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .marquee span {
+        display: inline-block;
+        animation: marquee 10s linear infinite;
+      }
+      @keyframes marquee {
+        0% {
+          transform: translateX(100vw);
+        }
+        100% {
+          transform: translateX(-100vw);
+        }
+      }
+      div[id^="chart"] {
+        background: #fff;
+        border: 6px groove #808080;
+        margin: 16px auto;
+        max-width: 800px;
+        min-height: 300px;
+        box-shadow: 8px 8px 0 #808080;
+      }
+      div {
+        margin-bottom: 8px;
+      }
+    </style>
   </head>
 
   <body>
@@ -17,6 +153,34 @@
       <label for="optionsPerSet">Options Per Set:</label>
       <input type="number" id="optionsPerSet" value="4" min="1" />
       <button onclick="updateCharts()">Update Charts</button>
+    </div>
+    <div class="gif-bar">
+      <img
+        src="https://media.giphy.com/media/3o6Zt8zb1Pp2v3A4lC/giphy.gif"
+        alt="Dancing Banana"
+      />
+      <img
+        src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"
+        alt="Under Construction"
+      />
+      <img
+        src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif"
+        alt="Spinning Globe"
+      />
+      <img
+        src="https://media.giphy.com/media/13CoXDiaCcCoyk/giphy.gif"
+        alt="Explosion"
+      />
+      <img
+        src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif"
+        alt="Rainbow Cat"
+      />
+    </div>
+    <div class="marquee">
+      <span
+        >WELCOME TO THE MAX DIFF SIMULATOR! ENJOY THE CUTTING EDGE OF 1990s WEB
+        TECHNOLOGY! 🚀🚀🚀</span
+      >
     </div>
     <div id="chart1" style="width: 100%; height: 400px"></div>
     <div id="chart2" style="width: 100%; height: 400px"></div>
