@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Max Diff Min Simulations</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 2em;
+      }
+      #sets-visual {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 1em;
+      }
+      .set-box {
+        border: 1px solid #ccc;
+        padding: 6px 10px;
+        border-radius: 4px;
+        background: #f9f9f9;
+        margin: 2px;
+      }
+      .duplicate {
+        background: #ffe0e0;
+        border-color: #ff8888;
+      }
+      .param-table {
+        margin-bottom: 1em;
+      }
+      .param-table td {
+        padding: 2px 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Max Diff Min Simulations</h1>
+    <form id="param-form" style="margin-bottom: 1em">
+      <label
+        >minAvgSeen:
+        <input type="number" id="minAvgSeen" value="3" min="1" required
+      /></label>
+      <label
+        >numOptions:
+        <input type="number" id="numOptions" value="8" min="2" required
+      /></label>
+      <label
+        >optionsPerSet:
+        <input type="number" id="optionsPerSet" value="4" min="2" required
+      /></label>
+      <label
+        >iterations:
+        <input type="number" id="iterations" value="1000" min="1" required
+      /></label>
+      <button type="submit">Run Simulation</button>
+    </form>
+    <table class="param-table" id="param-table"></table>
+    <div id="resultDiv"></div>
+    <h2>Last Simulation Sets</h2>
+    <div id="sets-visual"></div>
+    <script>
+      function runSimulation(params) {
+        const minAvgSeen = params.minAvgSeen;
+        const numOptions = params.numOptions;
+        const optionsPerSet = params.optionsPerSet;
+        const numSets = Math.ceil((minAvgSeen * numOptions) / optionsPerSet);
+        const iterations = params.iterations;
+
+        // Show parameters
+        const paramTable = document.getElementById("param-table");
+        paramTable.innerHTML = `
+          <tr><td>minAvgSeen</td><td>${minAvgSeen}</td></tr>
+          <tr><td>numOptions</td><td>${numOptions}</td></tr>
+          <tr><td>optionsPerSet</td><td>${optionsPerSet}</td></tr>
+          <tr><td>numSets</td><td>${numSets}</td></tr>
+          <tr><td>iterations</td><td>${iterations}</td></tr>
+        `;
+
+        let runsWithDuplicates = 0;
+        let lastSetCounts = {};
+        let lastSets = [];
+
+        for (let run = 0; run < iterations; run++) {
+          const attributes = [];
+          const attributeSeenCount = {};
+          const sets = [];
+          for (let i = 0; i < numOptions; i++) {
+            attributes.push(`${i + 1}`);
+            attributeSeenCount[`${i + 1}`] = 0;
+          }
+          function allSeenMinTimes() {
+            return Object.values(attributeSeenCount).every(
+              (count) => count >= minAvgSeen
+            );
+          }
+          function getRandomIndex(max) {
+            return Math.floor(Math.random() * max);
+          }
+          for (let index = 0; index < numSets; index++) {
+            const set = [];
+            const used = new Set();
+            for (let j = 0; j < optionsPerSet; j++) {
+              let itemId = attributes[getRandomIndex(numOptions)];
+              // Ensure no duplicates in the set
+              while (used.has(itemId)) {
+                itemId = attributes[getRandomIndex(numOptions)];
+              }
+              if (!allSeenMinTimes()) {
+                while (attributeSeenCount[itemId] > minAvgSeen) {
+                  itemId = attributes[getRandomIndex(numOptions)];
+                  // Also ensure no duplicates in the set
+                  while (used.has(itemId)) {
+                    itemId = attributes[getRandomIndex(numOptions)];
+                  }
+                }
+              }
+              attributeSeenCount[itemId]++;
+              set.push(itemId);
+              used.add(itemId);
+            }
+            sets.push(set);
+          }
+          let setCounts = {};
+          for (let i = 0; i < sets.length; i++) {
+            const setKey = sets[i].slice().sort().join(",");
+            if (!setCounts[setKey]) setCounts[setKey] = 0;
+            setCounts[setKey]++;
+          }
+          const hasDuplicate = Object.values(setCounts).some(
+            (count) => count > 1
+          );
+          if (hasDuplicate) runsWithDuplicates++;
+          if (run === iterations - 1) {
+            lastSetCounts = setCounts;
+            lastSets = sets;
+          }
+        }
+
+        // Simple text output for duplicate rate
+        const resultDiv = document.getElementById("resultDiv");
+        resultDiv.style.margin = "1em 0";
+        resultDiv.style.fontWeight = "bold";
+        resultDiv.textContent = `Final duplicate set rate: ${(
+          runsWithDuplicates / iterations
+        ).toFixed(4)} (${runsWithDuplicates} out of ${iterations} runs)`;
+
+        // Visualize last sets
+        const setsVisual = document.getElementById("sets-visual");
+        setsVisual.innerHTML = "";
+        const duplicateSetKeys = Object.keys(lastSetCounts).filter(
+          (k) => lastSetCounts[k] > 1
+        );
+        lastSets.forEach((set) => {
+          const setKey = set.slice().sort().join(",");
+          const div = document.createElement("div");
+          div.className =
+            "set-box" + (duplicateSetKeys.includes(setKey) ? " duplicate" : "");
+          div.textContent = `[${set.join(", ")}]`;
+          setsVisual.appendChild(div);
+        });
+      }
+
+      // Initial run
+      runSimulation({
+        minAvgSeen: 3,
+        numOptions: 12,
+        optionsPerSet: 4,
+        iterations: 1000,
+      });
+
+      // Form handler
+      document
+        .getElementById("param-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          runSimulation({
+            minAvgSeen: parseInt(
+              document.getElementById("minAvgSeen").value,
+              10
+            ),
+            numOptions: parseInt(
+              document.getElementById("numOptions").value,
+              10
+            ),
+            optionsPerSet: parseInt(
+              document.getElementById("optionsPerSet").value,
+              10
+            ),
+            iterations: parseInt(
+              document.getElementById("iterations").value,
+              10
+            ),
+          });
+        });
+    </script>
+  </body>
+</html>
